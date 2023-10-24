@@ -1,28 +1,30 @@
-'use strict';
+"use strict"
+
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('anime_episodes', {
+    await queryInterface.createTable("anime_episodes", {
       id: {
         allowNull: false,
-        autoIncrement: true,
+        autoIncrement: false,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING,
       },
-      id: {
-        type: Sequelize.STRING
-      },
-      createdAt: {
+      quality: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.ENUM("1080p", "default", "backup"),
+        primaryKey: true
       },
-      updatedAt: {
+      anime_id: {
+        type: Sequelize.STRING,
         allowNull: false,
-        type: Sequelize.DATE
-      }
-    });
+        references: { model: "animes", key: "id" },
+      },
+      episode_url: Sequelize.STRING(514),
+    })
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('anime_episodes');
-  }
-};
+    await queryInterface.dropTable("anime_episodes")
+  },
+}

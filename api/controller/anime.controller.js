@@ -22,7 +22,7 @@ const GetAnime = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      messege: "Server Internal Error",
+      messege: "Server Internal Error " + error,
     })
   }
 }
@@ -78,7 +78,7 @@ const GetEpisodes = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      messege: "Server Internal Error",
+      messege: "Server Internal Error " + error,
     })
   }
 }
@@ -100,7 +100,7 @@ const GetEpisode = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      messege: "Server Internal Error",
+      messege: "Server Internal Error " + error  ,
     })
   }
 }

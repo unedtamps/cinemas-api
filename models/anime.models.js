@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'anime',
-      tableName: 'anime',
+      tableName: 'animes',
     },
   )
   return anime
