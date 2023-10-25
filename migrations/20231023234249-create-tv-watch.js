@@ -28,7 +28,7 @@ module.exports = {
       },
       quality: {
         allowNull: false,
-        type: Sequelize.ENUM("1080p", "default", "backup"),
+        type: Sequelize.ENUM("1080p", "auto"),
         primaryKey: true,
       },
     })

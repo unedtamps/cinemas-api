@@ -23,10 +23,10 @@ module.exports = {
         },
         type: Sequelize.STRING
       },
-      quality:{
-        allowNull:false,
-        type: Sequelize.ENUM("1080p", "default", "backup"),
-        primaryKey: true
+      quality: {
+        allowNull: false,
+        type: Sequelize.ENUM("1080", "auto"),
+        primaryKey: true,
       },
     });
   },

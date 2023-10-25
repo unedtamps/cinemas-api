@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       id: {
         primaryKey: true,
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       title: {
         type: DataTypes.STRING,
