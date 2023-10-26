@@ -5,7 +5,9 @@ const mwatch = model.movieWatch
 const subs = model.subtitles
 
 const MovieFromApi = async (name) => {
+
   let url = `http://localhost:3000/movies/flixhq/${name}`
+  
   const results = []
   try {
     const dataFetch = await fetch(url)

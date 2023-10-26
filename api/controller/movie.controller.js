@@ -24,8 +24,10 @@ const GetMovieName = async (req, res) => {
       data: datas,
     })
   } catch (error) {
-    console.log(error)
-    res.status(500).json(error)
+    return res.status(500).json({
+      success: false,
+      messege: error.message,
+    })
   }
 }
 const GetEpisodeSubs = async (req, res) => {
@@ -55,8 +57,9 @@ const GetEpisodeSubs = async (req, res) => {
       },
     })
   } catch (error) {
-    res.status(500).json({
-      error: "server error",
+    return res.status(500).json({
+      success: false,
+      messege: error.message,
     })
   }
 }

@@ -44,7 +44,7 @@ const GetTitle = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      messege: "Server Internal Error",
+      messege: error.message,
     })
   }
 }
@@ -78,7 +78,7 @@ const GetEpisodes = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      messege: "Server Internal Error " + error,
+      messege: error.message,
     })
   }
 }
@@ -100,7 +100,7 @@ const GetEpisode = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      messege: "Server Internal Error " + error  ,
+      messege: error.message,
     })
   }
 }
