@@ -1,23 +1,19 @@
 const {
-  MovieFromApi,
-  GetMovieEpsApi,
   GetMovieByName,
-  GetEpisodeMovieById,
-  GetSubtitleById,
+  GetEpisodeById,
 } = require("../usecase/movie.usecase")
+const { SearchMovieTVAPI } = require("../usecase/movietv.usecase")
 
 const GetMovieName = async (req, res) => {
   try {
     const name = req.params.name
-    let datas = await GetMovieByName(name)
+    const datas = await GetMovieByName(name)
     if (datas.length === 0) {
-      datas = await MovieFromApi(name)
-      if (datas.length === 0) {
-        return res.status(404).json({
-          message: "Movie Not Found",
-          success: false,
-        })
-      }
+      SearchMovieTVAPI(name)
+      return res.json({
+        success: false,
+        message: "Movie Not Found, Try Again Letter",
+      })
     }
     return res.json({
       success: true,
@@ -30,32 +26,18 @@ const GetMovieName = async (req, res) => {
     })
   }
 }
-const GetEpisodeSubs = async (req, res) => {
-  try {
-    const id = req.query.movieid
-    const eps = await GetEpisodeMovieById(id)
-    const subs = await GetSubtitleById(id.split('-').pop())
 
-    if (eps.length === 0 || subs.length === 0) {
-      const fromApi = await GetMovieEpsApi(id)
-      if (fromApi.length === 0) {
-        return res.status(404).json({
-          message: "Episode Not Found",
-          success: false,
-        })
-      }
-      return res.json({
-        success: true,
-        data: fromApi,
+const GetMovieEpisodeById = async (req, res) => {
+  const id = req.params.id
+  try {
+    const episode = await GetEpisodeById(id)
+    if (episode.length === 0) {
+      return res.status(404).json({
+        success: false,
+        messege: "Episode NotFound, Try Again Letter",
       })
     }
-    return res.json({
-      success: true,
-      data: {
-        episodes: eps,
-        subtitles: subs,
-      },
-    })
+    return res.json(episode)
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -63,4 +45,5 @@ const GetEpisodeSubs = async (req, res) => {
     })
   }
 }
-module.exports = { GetMovieName, GetEpisodeSubs }
+
+module.exports = { GetMovieName, GetMovieByName, GetMovieEpisodeById }

@@ -4,6 +4,7 @@ const cron = require("node-cron")
 const movieroute = require("./router/movie.route")
 const { CreateAcc, LoginAcc } = require("./api/controller/user.controller")
 const { rateLimiter, validateKey } = require("./api/middleware/ratelimit")
+const tvroute = require("./router/tv.route")
 
 const app = express()
 const port = process.env.PORT || "3000"
@@ -21,7 +22,8 @@ app.get("/", (req, res) => {
 
 app.use("/anime", validateKey, rateLimiter, animeroute)
 app.use("/movie", validateKey, rateLimiter, movieroute)
-// app.get("/key", TestGenrateKey)
+app.use("/tv",validateKey,rateLimiter,tvroute)
+
 app.post("/create_user", CreateAcc)
 app.post("/login_user", LoginAcc)
 

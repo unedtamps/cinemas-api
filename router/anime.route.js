@@ -1,11 +1,11 @@
-const { GetTitle, GetAnime, GetEpisode, GetEpisodes } = require('../api/controller/anime.controller')
+const { GetByTitle, GetAnimeById, GetEpsByAnimeId, GetAnimeEpisodeById } = require('../api/controller/anime.controller')
 
 const animeroute = require('express').Router()
 
-animeroute.get("/search/:title", GetTitle)
-animeroute.get("/find/:id",GetAnime)
-animeroute.get("/episodes/:anime_id", GetEpisodes)
-animeroute.get("/episode/:id", GetEpisode)
+animeroute.get("/search/:title", GetByTitle)
+animeroute.get("/findById",GetAnimeById)
+animeroute.get("/episodes", GetEpsByAnimeId)
+animeroute.get("/episode/:id", GetAnimeEpisodeById)
 
 module.exports = animeroute
 

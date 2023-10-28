@@ -2,10 +2,15 @@ const { Op } = require("sequelize")
 const model = require("../../models")
 const anime = model.anime
 const episode = model.animeEpisode
+const { ANIME } = require("@consumet/extensions")
+const gogo = new ANIME.Gogoanime()
+require("dotenv").config()
+const apiUrl = process.env.API_URL
 
 const GetbyId = async (id) => {
   try {
     let data = await anime.findOne({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
       where: {
         id,
       },
@@ -15,7 +20,7 @@ const GetbyId = async (id) => {
     }
     return data
   } catch (error) {
-    throw new Error(error)
+    console.log(error.message)
   }
 }
 const GetByName = async (name) => {
@@ -36,7 +41,7 @@ const GetByName = async (name) => {
     }
     return results
   } catch (error) {
-    throw new Error(error)
+    console.log(error.message)
   }
 }
 
@@ -56,8 +61,7 @@ const GetEpisodesByAnimeId = async (animeId) => {
     }
     return results
   } catch (error) {
-    console.error(error)
-    throw new Error(error)
+    console.log(error.message)
   }
 }
 const GetEpisodeId = async (id) => {
@@ -76,22 +80,17 @@ const GetEpisodeId = async (id) => {
     }
     return results
   } catch (error) {
-    console.error(error)
-    throw new Error(error)
+    
+    console.log(error.message)
   }
 }
 
 const SearchFromApi = async (title) => {
-  let url = `https://api.consumet.org/anime/gogoanime/${title}`
-  const results = []
   try {
-    const datas = await fetch(url)
-    const jsonDatas = await datas.json()
+    const jsonDatas = (await gogo.search(title)).results
     await Promise.all(
-      jsonDatas.results.map(async (js) => {
-        url = `https://api.consumet.org/anime/gogoanime/info/${js.id}`
-        const getInfo = await fetch(url)
-        const getJson = await getInfo.json()
+      jsonDatas.map(async (js) => {
+        const getJson = await gogo.fetchAnimeInfo(js.id)
         const result = {
           id: js.id,
           title: js.title,
@@ -104,66 +103,53 @@ const SearchFromApi = async (title) => {
           status: getJson.status,
           type: getJson.type,
         }
-        anime.create(result)
-        results.push(result)
+        anime.upsert(result)
       }),
     )
-    return results
   } catch (error) {
-    throw new Error(error)
+    console.log(error.message)
   }
 }
 const SearchEpisodesApi = async (animeId) => {
-  const url = `https://api.consumet.org/anime/gogoanime/info/${animeId}`
   try {
-    const results = []
-    const info = await fetch(url)
-    const infoJson = await info.json()
+    const infoJson = await gogo.fetchAnimeInfo(animeId)
     const episodes = infoJson.episodes
-    await Promise.all(episodes.map(async (ep)=>{
-      const urlEps = await SearchEpisodeApi(ep.id, animeId)
-      urlEps.forEach(u => {
-          results.push(u)
-      })
-    }))
-    return results
+    await Promise.all(
+      episodes.map(async (ep) => {
+         SearchEpisodeApi(ep.id, animeId)
+      }),
+    )
   } catch (error) {
-    throw new Error(error)
+    console.log(error.message)
   }
 }
 
 const SearchEpisodeApi = async (id, animeId) => {
-  const url = `https://api.consumet.org/anime/gogoanime/watch/${id}`
   try {
+    const url = `${apiUrl}/anime/gogoanime/watch/${id}`
     const datas = await fetch(url)
     const dataJson = await datas.json()
     const dataRes = dataJson.sources
-    const results = []
+    if(dataRes === undefined){
+      console.log("episode not found")
+      return
+    }
     dataRes.forEach((data) => {
       if (
         data.quality === "1080p" ||
         data.quality === "default" ||
         data.quality === "backup"
       ) {
-        const res = {
+        episode.upsert({
+          episode_url: data.url,
           id,
           quality: data.quality,
-          anime_id:animeId,
-          episode_url: data.url,
-        }
-        episode.create({
-          episode_url:data.url,
-          id,
-          quality:data.quality,
-          anime_id:animeId,
+          anime_id: animeId,
         })
-        results.push(res)
       }
     })
-    return results
   } catch (error) {
-    console.log(error)
-    throw new Error(error)
+    console.log(error.message)
   }
 }
 
@@ -174,5 +160,5 @@ module.exports = {
   GetEpisodesByAnimeId,
   GetEpisodeId,
   SearchEpisodeApi,
-  SearchEpisodesApi
+  SearchEpisodesApi,
 }

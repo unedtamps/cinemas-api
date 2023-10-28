@@ -1,11 +1,11 @@
-const { GetMovieName, GetEpisodeSubs } = require('../api/controller/movie.controller')
+const { GetMovieName, GetMovieEpisodeById } = require("../api/controller/movie.controller")
+const {GetEpisodeSubs, GetMovieTvId} = require("../api/controller/movietv.controller")
 
-const movieroute = require('express').Router()
+const movieroute = require("express").Router()
 
-
-movieroute.get("/search", GetMovieName)
-movieroute.get("/episode", GetEpisodeSubs)
-
-
+movieroute.get("/search/:name", GetMovieName)
+movieroute.get("/episodes", GetEpisodeSubs)
+movieroute.get("/episode/:id", GetMovieEpisodeById)
+movieroute.get("/findById", GetMovieTvId)
 
 module.exports = movieroute

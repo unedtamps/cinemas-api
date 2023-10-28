@@ -8,14 +8,15 @@ const {
   SearchEpisodesApi,
 } = require("../usecase/anime.usecase")
 
-const GetAnime = async (req, res) => {
-  const id = req.params.id
+const GetAnimeById = async (req, res) => {
+  const id = req.query.id
   try {
     const data = await GetbyId(id)
     if (!data) {
+      SearchFromApi(id)
       return res.status(404).json({
         success: false,
-        messege: "Anime NotFound",
+        messege: "Anime NotFound, Try Again Letter",
       })
     }
     return res.json(data)
@@ -26,21 +27,21 @@ const GetAnime = async (req, res) => {
     })
   }
 }
-const GetTitle = async (req, res) => {
+const GetByTitle = async (req, res) => {
   const title = req.params.title
   try {
-    let datas = await GetByName(title)
+    const datas = await GetByName(title)
     if (datas.length === 0) {
-      const apidata = await SearchFromApi(title)
-      if (apidata.length === 0) {
-        return res.status(404).json({
-          success: false,
-          messege: "Anime NotFound",
-        })
-      }
-      datas = apidata
+      SearchFromApi(title)
+      return res.status(404).json({
+        success: false,
+        messege: "Anime NotFound, Try Again Letter",
+      })
     }
-    return res.json(datas)
+    return res.json({
+      success: true,
+      data: datas,
+    })
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -48,31 +49,26 @@ const GetTitle = async (req, res) => {
     })
   }
 }
-const GetEpisodes = async (req, res) => {
-  const id = req.params.anime_id
+const GetEpsByAnimeId = async (req, res) => {
+  const id = req.query.anime_id
   try {
     // check if anime is in table in not in table put it to table first
     const checkAnime = await GetbyId(id)
     if (!checkAnime) {
-      const fromApi = await SearchFromApi(id)
-      if (fromApi.length === 0) {
-        return res.status(404).json({
-          success: false,
-          messege: "Episode NotFound",
-        })
-      }
+      SearchFromApi(id)
+      return res.status(404).json({
+        success: false,
+        messege: "Anime NotFound Try Again Letter",
+      })
     }
     // now anime are in table or anime are not found
-    let datas = await GetEpisodesByAnimeId(id)
+    const datas = await GetEpisodesByAnimeId(id)
     if (datas.length === 0) {
-      const episodesApi = await SearchEpisodesApi(id)
-      if (episodesApi.length === 0) {
-        return res.status(404).json({
-          success: false,
-          messege: "Episode NotFound",
-        })
-      }
-      datas = episodesApi
+      SearchEpisodesApi(id)
+      return res.status(404).json({
+        success: false,
+        messege: "Episode NotFound, Try Again Letter",
+      })
     }
     return res.json(datas)
   } catch (error) {
@@ -82,19 +78,28 @@ const GetEpisodes = async (req, res) => {
     })
   }
 }
-const GetEpisode = async (req, res) => {
-  const id = req.body.id
+const GetAnimeEpisodeById = async (req, res) => {
+  const id = req.params.id
   try {
-    let datas = await GetEpisodeId(id)
+    let animeId = id.split("-")
+    animeId.pop()
+    animeId.pop()
+    animeId = animeId.join('-')
+    const anime = await GetbyId(animeId)
+    if (!anime){
+      SearchFromApi(animeId)
+      return res.status(404).json({
+        success: false,
+        messege: "Anime NotFound Try Again Letter",
+      })
+    }
+    const datas = await GetEpisodeId(id)
     if (datas.length === 0) {
-      const episodeApi = await SearchEpisodeApi(id)
-      if (episodeApi.length === 0) {
-        return res.status(404).json({
-          success: false,
-          messege: "Anime NotFound",
-        })
-      }
-      datas = episodeApi
+      SearchEpisodeApi(id, animeId)
+      return res.status(404).json({
+        success: false,
+        messege: "Episode NotFound, Try Again Letter",
+      })
     }
     return res.json(datas)
   } catch (error) {
@@ -105,4 +110,9 @@ const GetEpisode = async (req, res) => {
   }
 }
 
-module.exports = { GetAnime, GetTitle, GetEpisodes, GetEpisode }
+module.exports = {
+  GetAnimeById,
+  GetByTitle,
+  GetEpsByAnimeId,
+  GetAnimeEpisodeById,
+}
