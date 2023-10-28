@@ -2,8 +2,6 @@ const { Op } = require("sequelize")
 const model = require("../../models")
 const anime = model.anime
 const episode = model.animeEpisode
-const { ANIME } = require("@consumet/extensions")
-const gogo = new ANIME.Gogoanime()
 require("dotenv").config()
 const apiUrl = process.env.API_URL
 
@@ -28,9 +26,18 @@ const GetByName = async (name) => {
     const datas = await anime.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
       where: {
-        title: {
-          [Op.like]: `%${name}%`,
-        },
+        [Op.or]: [
+          {
+            title: {
+              [Op.like]: `%${name}%`,
+            },
+          },
+          {
+            id: {
+              [Op.like]: `%${name}%`,
+            },
+          },
+        ],
       },
     })
     const results = []
@@ -80,17 +87,21 @@ const GetEpisodeId = async (id) => {
     }
     return results
   } catch (error) {
-    
     console.log(error.message)
   }
 }
 
 const SearchFromApi = async (title) => {
   try {
-    const jsonDatas = (await gogo.search(title)).results
+    let url = `${apiUrl}/anime/gogoanime/${title}`
+    let data = await fetch(url)
+    const dataWait = await data.json()
+    const jsonDatas = dataWait.results
     await Promise.all(
       jsonDatas.map(async (js) => {
-        const getJson = await gogo.fetchAnimeInfo(js.id)
+        url = `${apiUrl}/anime/gogoanime/info/${js.id}`
+        data = await fetch(url)
+        const getJson = await data.json()
         const result = {
           id: js.id,
           title: js.title,
@@ -112,11 +123,13 @@ const SearchFromApi = async (title) => {
 }
 const SearchEpisodesApi = async (animeId) => {
   try {
-    const infoJson = await gogo.fetchAnimeInfo(animeId)
+    const url = `${apiUrl}/anime/gogoanime/info/${animeId}`
+    const data = await fetch(url)
+    const infoJson = await data.json()
     const episodes = infoJson.episodes
     await Promise.all(
       episodes.map(async (ep) => {
-         SearchEpisodeApi(ep.id, animeId)
+        SearchEpisodeApi(ep.id, animeId)
       }),
     )
   } catch (error) {
@@ -130,7 +143,7 @@ const SearchEpisodeApi = async (id, animeId) => {
     const datas = await fetch(url)
     const dataJson = await datas.json()
     const dataRes = dataJson.sources
-    if(dataRes === undefined){
+    if (dataRes === undefined) {
       console.log("episode not found")
       return
     }

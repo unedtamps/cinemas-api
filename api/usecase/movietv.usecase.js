@@ -4,27 +4,22 @@ const tv = model.tv
 const mwatch = model.movieWatch
 const subs = model.subtitles
 const tvEps = model.tvWatch
-const { MOVIES } = require("@consumet/extensions")
-const flixHq = new MOVIES.FlixHQ()
 require('dotenv').config()
 const apiUrl = process.env.API_URL
 
 
 const SearchMovieTVAPI = async (name) => {
-  // let url = `${apiUrl}/movies/flixhq/${name}`
-  const results = []
+  let url = `${apiUrl}/movies/flixhq/${name}`
   try {
-    // const dataFetch = await fetch(url)
-    // const datas = await dataFetch.json()
-    const datas = await flixHq.search(name, 1)
+    const dataFetch = await fetch(url)
+    const datas = await dataFetch.json()
     const dataRes = datas.results
 
     await Promise.all(
       dataRes.map(async (data) => {
-        // url = `${apiUrl}/movies/flixhq/info?id=${data.id}`
-        // const getInfo = await fetch(url)
-        // const getJson = await getInfo.json()
-        const getJson = await flixHq.fetchMediaInfo(data.id)
+        url = `${apiUrl}/movies/flixhq/info?id=${data.id}`
+        const getInfo = await fetch(url)
+        const getJson = await getInfo.json()
         // insert to movie table
 
         const genres = getJson.genres ? getJson.genres.join(",") : null
@@ -58,7 +53,6 @@ const SearchMovieTVAPI = async (name) => {
         }
       }),
     )
-    return results
   } catch (error) {
     console.log(error.message)
   }
@@ -102,10 +96,10 @@ const InsertMovieEpisode = async (dataEps, id, movieTVId, type) => {
     let title = ""
 
     if (type === "tv") {
-      // const url = `${apiUrl}/movies/flixhq/info?id=${movieTVId}`
-      // const getInfo = await fetch(url)
-      // const getJson = await getInfo.json()
-      const getJson = await flixHq.fetchMediaInfo(movieTVId)
+      const url = `${apiUrl}/movies/flixhq/info?id=${movieTVId}`
+      const getInfo = await fetch(url)
+      const getJson = await getInfo.json()
+      // const getJson = await flixHq.fetchMediaInfo(movieTVId)
       const episodes = getJson.episodes
       title = episodes.title
     }
