@@ -1,4 +1,4 @@
-const {customAlphabet } = require('nanoid')
+const { customAlphabet } = require("nanoid")
 
 const GenerateKey = () => {
   const alphabet =
