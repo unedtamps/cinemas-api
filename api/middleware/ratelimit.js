@@ -28,7 +28,6 @@ const rateLimiter = rateLimit({
 
 const validateKey = async (req, res, next) => {
   const key = req.query.API_KEY
-  console.log(key)
   try {
     if (!key) {
       return res.status(400).json({

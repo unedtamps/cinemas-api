@@ -23,7 +23,7 @@ cron.schedule("*/1 * * * *", () => {
   console.log("run every minutes")
 })
 
-app.get("/", validateKey, (req, res) => {
+app.get("/", (req, res) => {
   res.json({
     messege: "api working",
   })

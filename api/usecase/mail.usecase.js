@@ -29,7 +29,6 @@ const sendEmailActivation = async (to) => {
   <input type="submit" value="Submit" />
   </form>
   `
-  console.log(to.key)
   const data = {
     from: `Theater<${process.env.GMAIL}>`,
     to: to.email,
