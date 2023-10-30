@@ -6,6 +6,7 @@ const process = require("dotenv").config({
 })
 const google = require("googleapis")
 const { GenerateKey } = require("./apikey.usecase")
+const { sendEmailActivation } = require("./mail.usecase")
 
 const oauth2Client = new google.Auth.OAuth2Client(
   process.parsed.GOOGLE_CLIENT_ID,
@@ -24,7 +25,7 @@ const authUrl = oauth2Client.generateAuthUrl({
   include_granted_scopes: true,
 })
 
-const updateInsertApiKey = async (data) => {
+const updateOrCreateUser = async (data) => {
   try {
     const exprireAt = Date.now() + 3 * 24 * 60 * 60 * 1000
     const findUser = await userDB.findOne({ where: { id: data.id } })
@@ -40,10 +41,11 @@ const updateInsertApiKey = async (data) => {
       key,
       expire_at: exprireAt,
     })
+    sendEmailActivation(user.dataValues)
     return user
   } catch (error) {
     console.log(error)
   }
 }
 
-module.exports = { authUrl, oauth2Client, updateInsertApiKey }
+module.exports = { authUrl, oauth2Client, updateOrCreateUser }

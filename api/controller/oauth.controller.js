@@ -3,7 +3,7 @@ const { google } = require("googleapis")
 const {
   authUrl,
   oauth2Client,
-  updateInsertApiKey,
+  updateOrCreateUser,
 } = require("../usecase/oauth.usecase")
 
 const oauthCallBack = async (req, res) => {
@@ -23,7 +23,8 @@ const oauthCallBack = async (req, res) => {
         message: "data not found",
       })
     }
-    const user = await updateInsertApiKey(data)
+    const user = await updateOrCreateUser(data)
+
     return res.status(201).json({
       success: true,
       data: {

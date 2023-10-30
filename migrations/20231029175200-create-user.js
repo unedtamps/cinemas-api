@@ -1,4 +1,6 @@
 "use strict"
+
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -24,6 +26,10 @@ module.exports = {
       expire_at: {
         type: Sequelize.BIGINT,
         allowNull: false,
+      },
+      is_activated: {
+        type: Sequelize.BOOLEAN,
+        defaultValue:false
       },
       is_premium: {
         type: Sequelize.BOOLEAN,

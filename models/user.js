@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       email: DataTypes.STRING,
       key: DataTypes.STRING,
       expire_at: DataTypes.BIGINT,
+      is_activated:DataTypes.BOOLEAN,
       is_premium: DataTypes.BOOLEAN,
     },
     {
