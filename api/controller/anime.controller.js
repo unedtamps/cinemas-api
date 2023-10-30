@@ -19,7 +19,10 @@ const GetAnimeById = async (req, res) => {
         messege: "Anime NotFound, Try Again Letter",
       })
     }
-    return res.json(data)
+    return res.json({
+      success: true,
+      data,
+    })
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -70,7 +73,10 @@ const GetEpsByAnimeId = async (req, res) => {
         messege: "Episode NotFound, Try Again Letter",
       })
     }
-    return res.json(datas)
+    return res.json({
+      success: true,
+      datas,
+    })
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -84,10 +90,13 @@ const GetAnimeEpisodeById = async (req, res) => {
     let animeId = id.split("-")
     animeId.pop()
     animeId.pop()
-    animeId = animeId.join('-')
+    animeId = animeId.join("-")
     const anime = await GetbyId(animeId)
-    if (!anime){
-      SearchFromApi(animeId)
+    if (!anime) {
+      ;(async () => {
+        await SearchFromApi(animeId)
+        SearchEpisodeApi(id, animeId)
+      })()
       return res.status(404).json({
         success: false,
         messege: "Anime NotFound Try Again Letter",
@@ -95,13 +104,15 @@ const GetAnimeEpisodeById = async (req, res) => {
     }
     const datas = await GetEpisodeId(id)
     if (datas.length === 0) {
-      SearchEpisodeApi(id, animeId)
       return res.status(404).json({
         success: false,
         messege: "Episode NotFound, Try Again Letter",
       })
     }
-    return res.json(datas)
+    return res.json({
+      success: true,
+      datas,
+    })
   } catch (error) {
     return res.status(500).json({
       success: false,

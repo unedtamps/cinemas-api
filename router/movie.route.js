@@ -1,5 +1,9 @@
-const { GetMovieName, GetMovieEpisodeById } = require("../api/controller/movie.controller")
-const {GetEpisodeSubs, GetMovieTvId} = require("../api/controller/movietv.controller")
+const {
+  GetMovieName,
+  GetMovieEpisodeById,
+  GetEpisodeSubs,
+  GetMovieTvId,
+} = require("../api/controller/movieTv.controller")
 
 const movieroute = require("express").Router()
 

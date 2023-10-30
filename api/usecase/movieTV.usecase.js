@@ -4,16 +4,167 @@ const tv = model.tv
 const mwatch = model.movieWatch
 const subs = model.subtitles
 const tvEps = model.tvWatch
-require('dotenv').config()
+require("dotenv").config()
 const apiUrl = process.env.API_URL
+const { Op } = require("sequelize")
+const toTitleCase = require("./utility.usecase")
 
+// movie
+const FindMovieByName = async (name) => {
+  try {
+    const datas = await movie.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      where: {
+        [Op.or]: [
+          {
+            title: {
+              [Op.like]: `%${toTitleCase(name)}%`,
+            },
+          },
+          {
+            id: {
+              [Op.like]: `%${name}%`,
+            },
+          },
+        ],
+      },
+    })
+    const results = []
+    if (datas) {
+      datas.forEach((data) => {
+        results.push(data.dataValues)
+      })
+    }
+    return results
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+const FindMovieById = async (id) => {
+  try {
+    let data = await movie.findOne({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      where: {
+        id,
+      },
+    })
+    if (data) {
+      data = data.dataValues
+    }
+    return data
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
+const FindEpisodeByMovieId = async (movieId) => {
+  try {
+    const datas = await mwatch.findAll({
+      attributes: { exclude: "movieId" },
+      where: {
+        movie_id: movieId,
+      },
+    })
+    const results = []
+    if (datas) {
+      datas.forEach((data) => {
+        results.push(data.dataValues)
+      })
+    }
+    return results
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+const FindEpisodeMovieById = async (id) => {
+  try {
+    const datas = await mwatch.findAll({
+      attributes: { exclude: "movieId" },
+      where: {
+        id,
+      },
+    })
+    const results = []
+    if (datas) {
+      datas.forEach((data) => {
+        results.push(data.dataValues)
+      })
+    }
+    return results
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+
+// Tv
+const FindTvByName = async (name) => {
+  try {
+    const datas = await tv.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      where: {
+        title: {
+          [Op.like]: `%${name}%`,
+        },
+      },
+    })
+    const results = []
+    if (datas) {
+      datas.forEach((data) => {
+        results.push(data.dataValues)
+      })
+    }
+    return results
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+const FindTvById = async (id) => {
+  try {
+    let data = await tv.findOne({
+      where: {
+        id,
+      },
+    })
+    if (data) {
+      data = data.dataValues
+    }
+    return data
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+
+const FindEpisodesByTVId = async (tvId) => {
+  try {
+    const datas = await tvEps.findAll({
+      attributes: { exclude: "tvId" },
+      where: {
+        tv_id: tvId,
+      },
+    })
+    const results = []
+    if (datas) {
+      datas.forEach((data) => {
+        results.push(data.dataValues)
+      })
+    }
+    return results
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+
+// Apis
 const SearchMovieTVAPI = async (name) => {
   let url = `${apiUrl}/movies/flixhq/${name}`
   try {
     const dataFetch = await fetch(url)
     const datas = await dataFetch.json()
     const dataRes = datas.results
+    if (!dataRes) {
+      console.log(`${name} not found`)
+      return
+    }
 
     await Promise.all(
       dataRes.map(async (data) => {
@@ -78,20 +229,20 @@ const GetMovieTVEpsApi = async (Id, type) => {
         }),
     )
     const watchJson = await watchData.json()
-    if(watchJson.sources === undefined){
+    if (watchJson.sources === undefined) {
       console.log(`Episode ${Id} not found`)
       return
     }
     // insert epsiosde of movie to db and return
-    InsertMovieEpisode(watchJson, watchId, Id, type)
+    InsertMovieTVEpisode(watchJson, watchId, Id, type)
     // insert to subtitle db
-    InsertMovieSubtitle(watchJson, watchId)
+    InsertMovieTVSubtitle(watchJson, watchId)
   } catch (error) {
     console.log(error.message)
   }
 }
 
-const InsertMovieEpisode = async (dataEps, id, movieTVId, type) => {
+const InsertMovieTVEpisode = async (dataEps, id, movieTVId, type) => {
   try {
     let title = ""
 
@@ -125,7 +276,7 @@ const InsertMovieEpisode = async (dataEps, id, movieTVId, type) => {
   }
 }
 
-const InsertMovieSubtitle = async (dataSub, id) => {
+const InsertMovieTVSubtitle = async (dataSub, id) => {
   // insert subtitle to db
   const subsDatas = []
   try {
@@ -144,7 +295,7 @@ const InsertMovieSubtitle = async (dataSub, id) => {
   }
 }
 
-const GetSubtitleById = async (id) => {
+const FindSubtitleById = async (id) => {
   try {
     const datas = await subs.findAll({
       where: {
@@ -162,4 +313,15 @@ const GetSubtitleById = async (id) => {
     console.log(error.message)
   }
 }
-module.exports = { SearchMovieTVAPI, GetMovieTVEpsApi, GetSubtitleById }
+module.exports = {
+  SearchMovieTVAPI,
+  GetMovieTVEpsApi,
+  FindSubtitleById,
+  FindMovieByName,
+  FindEpisodeByMovieId,
+  FindEpisodeMovieById,
+  FindMovieById,
+  FindTvByName,
+  FindTvById,
+  FindEpisodesByTVId,
+}

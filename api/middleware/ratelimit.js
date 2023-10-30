@@ -27,7 +27,6 @@ const rateLimiter = rateLimit({
 })
 
 const validateKey = async (req, res, next) => {
-console.log("ip addr", ip)
   const key = req.query.API_KEY
   try {
     if (!key) {

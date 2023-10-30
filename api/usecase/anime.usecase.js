@@ -1,5 +1,6 @@
 const { Op } = require("sequelize")
 const model = require("../../models")
+const toTitleCase = require("./utility.usecase")
 const anime = model.anime
 const episode = model.animeEpisode
 require("dotenv").config()
@@ -29,7 +30,7 @@ const GetByName = async (name) => {
         [Op.or]: [
           {
             title: {
-              [Op.like]: `%${name}%`,
+              [Op.like]: `%${toTitleCase(name)}%`,
             },
           },
           {
