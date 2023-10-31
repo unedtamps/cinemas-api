@@ -19,6 +19,8 @@ app.use(
     origin: "*",
   }),
 )
+app.set("view engine", "ejs")
+
 cron.schedule("*/1 * * * *", () => {
   console.log("run every minutes")
 })
@@ -27,6 +29,10 @@ app.get("/", (req, res) => {
   res.json({
     messege: "api working",
   })
+})
+
+app.get('/testview', (req, res) => {
+  res.render('wellcome.page.ejs', {name:"UNEDO"})
 })
 
 app.use("/anime", validateKey, rateLimiter, animeroute)
