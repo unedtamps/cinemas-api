@@ -1,16 +1,13 @@
-const path = require("path")
 const model = require("../../models")
 const userDB = model.user
-const process = require("dotenv").config({
-  path: path.resolve(__dirname, "../../.env"),
-})
+require('dotenv').config()
 const google = require("googleapis")
 const { GenerateKey } = require("./apikey.usecase")
 const { sendEmailActivation } = require("./mail.usecase")
 
 const oauth2Client = new google.Auth.OAuth2Client(
-  process.parsed.GOOGLE_CLIENT_ID,
-  process.parsed.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
   "http://localhost:8080/auth/google/callback",
 )
 
