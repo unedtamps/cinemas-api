@@ -17,10 +17,10 @@ module.exports = {
       },
       movie_id:{
         allowNull:false,
-        references:{
-          model: "movies",
-          key:'id',
-        },
+        // references:{
+        //   model: "movies",
+        //   key:'id',
+        // },
         type: Sequelize.STRING
       },
       quality: {

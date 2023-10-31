@@ -20,10 +20,10 @@ module.exports = {
       },
       tv_id: {
         allowNull: false,
-        references: {
-          model: "tvs",
-          key: "id",
-        },
+        // references: {
+        //   model: "tvs",
+        //   key: "id",
+        // },
         type: Sequelize.STRING,
       },
       quality: {

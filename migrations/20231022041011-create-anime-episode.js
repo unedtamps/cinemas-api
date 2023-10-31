@@ -19,7 +19,7 @@ module.exports = {
       anime_id: {
         type: Sequelize.STRING,
         allowNull: false,
-        references: { model: "animes", key: "id" },
+        // references: { model: "animes", key: "id" },
       },
       episode_url: Sequelize.STRING(514),
     })
