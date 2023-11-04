@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit&display=swap');
+
+body {
+    font-family: 'Outfit', sans-serif;
+    color: white;
+    background-color: #F9DEC9;
+}
+
+#login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#register {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+.container {
+    background-color: #F04B52;
+    margin: 0 5rem;
+    border-radius: 1rem;
+}
+
+.img-container img {
+    width: 20rem;
+    height: 5rem;
+    object-fit: cover;
+    border-top-right-radius: 1rem;
+    border-top-left-radius: 1rem;
+}
+
+.form-title {
+    text-align: center;
+    font-size: 2rem;
+    margin: 0 auto;
+}
+
+.form-container {
+    padding: 0 0 2rem 0;
+    font-size: 18px;
+}
+
+.form-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 1rem 2rem 1rem 2rem;
+}
+
+label {
+    display: block;
+}
+
+.form-input {
+    margin-bottom: 1rem;
+    background-color: transparent;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom: 3px solid black;
+    margin-top: 10px;
+    outline: none;
+}
+
+.form-button {
+    display: block;
+    margin: 1rem auto 0 auto;
+    border-radius: 1rem;
+    padding: 9px 50px;
+    font-size: 15px;
+    background-color: #E4DBD2;
+    font-weight: bold;
+}
+
+.oauth-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+}
+
+.oauth-container img {
+    width: 13%;
+    max-width: 5rem;
+    background-color: white;
+    padding: 0.7rem;
+    border-radius: 100%;
+}
+
+@media only screen and (min-width:800px) {
+    .container {
+        background-color: #F04B52;
+        border-radius: 1rem;
+    }
+    .form-input{
+        font-size: 18px;
+    }
+
+    .img-container img {
+        width: 40rem;
+        height: 6rem;
+        object-fit: cover;
+        border-top-right-radius: 1rem;
+        border-top-left-radius: 1rem;
+    }
+.oauth-container img {
+    width: 13%;
+    max-width: 1.7rem;
+    background-color: white;
+    padding: 0.7rem;
+    border-radius: 100%;
+}
+}

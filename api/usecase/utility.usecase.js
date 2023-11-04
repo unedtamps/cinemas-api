@@ -14,7 +14,7 @@ const GenerateKey = () => {
   return nanoid()
 }
 const GenerateId = () => {
-  const alphabet ="1234567890"
+  const alphabet = "1234567890"
   const nanoid = customAlphabet(alphabet, 21)
   return nanoid()
 }
@@ -40,5 +40,5 @@ module.exports = {
   GeneratePassword,
   HashPassword,
   Compare,
-  GenerateId
+  GenerateId,
 }

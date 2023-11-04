@@ -7,7 +7,7 @@ const tvEps = model.tvWatch
 require("dotenv").config()
 const apiUrl = process.env.API_URL
 const { Op } = require("sequelize")
-const toTitleCase = require("./utility.usecase")
+const { toTitleCase } = require("./utility.usecase")
 
 // movie
 const FindMovieByName = async (name) => {

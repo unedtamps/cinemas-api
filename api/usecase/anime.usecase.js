@@ -1,6 +1,6 @@
 const { Op } = require("sequelize")
 const model = require("../../models")
-const toTitleCase = require("./utility.usecase")
+const { toTitleCase } = require("./utility.usecase")
 const anime = model.anime
 const episode = model.animeEpisode
 require("dotenv").config()
