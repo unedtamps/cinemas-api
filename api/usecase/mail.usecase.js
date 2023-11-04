@@ -25,12 +25,12 @@ const send = async (data) => {
 
 const sendEmailActivation = async (to) => {
   const html = `<h1> Wellcome To Theater </h1>
-  <form  action="http://localhost:8080/user/activated?id=${to.id}" method="post">
+  <form  action="http://localhost:8080/auth/user/activated?id=${to.id}" method="post">
   <input type="submit" value="Submit" />
   </form>
   `
   const data = {
-    from: `Theater<${process.env.GMAIL}>`,
+    from: `Cinemas<${process.env.GMAIL}>`,
     to: to.email,
     subject: "Activation Acount",
     html,

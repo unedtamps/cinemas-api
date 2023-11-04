@@ -16,6 +16,8 @@ module.exports = (sequelize, DataTypes) => {
       id: { type: DataTypes.STRING, primaryKey: true },
       name: DataTypes.STRING,
       email: DataTypes.STRING,
+      password:DataTypes.STRING,
+      auth_type:DataTypes.STRING,
       key: DataTypes.STRING,
       expire_at: DataTypes.BIGINT,
       is_activated:DataTypes.BOOLEAN,

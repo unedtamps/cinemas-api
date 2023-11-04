@@ -24,6 +24,12 @@ const oauthCallBack = async (req, res) => {
       })
     }
     const user = await updateOrCreateUser(data)
+    if (!user) {
+      return res.status(409).json({
+        success: false,
+        message: "already exisits",
+      })
+    }
 
     return res.status(201).json({
       success: true,

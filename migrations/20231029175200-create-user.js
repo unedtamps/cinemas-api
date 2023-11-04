@@ -18,6 +18,14 @@ module.exports = {
         unique: true,
         allowNull: false,
       },
+      password: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      auth_type:{
+        type: Sequelize.ENUM("oauth", "password"),
+        allowNull:false
+      },
       key: {
         type: Sequelize.STRING,
         allowNull: false,

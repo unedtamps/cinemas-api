@@ -3,16 +3,13 @@ const animeroute = require("./router/anime.route")
 const cron = require("node-cron")
 const cors = require("cors")
 const movieroute = require("./router/movie.route")
-const { activatedUser } = require("./api/controller/user.controller")
 const { rateLimiter, validateKey } = require("./api/middleware/ratelimit")
 const tvroute = require("./router/tv.route")
-const {
-  oauthCallBack,
-  outhLogin,
-} = require("./api/controller/oauth.controller")
+const authroute = require("./router/auth.route")
 
 const app = express()
 const port = process.env.PORT || "3000"
+app.use(express.static('public'))
 app.use(express.json())
 app.use(
   cors({
@@ -31,17 +28,17 @@ app.get("/", (req, res) => {
   })
 })
 
-app.get('/testview', (req, res) => {
-  res.render('wellcome.page.ejs', {name:"UNEDO"})
+app.get('/login', (req, res) => {
+  res.render('login.page.ejs', {title:"Login | Cinema"})
+})
+app.get('/register', (req, res) => {
+  res.render('register.page.ejs', {title:"Register | Cinema"})
 })
 
 app.use("/anime", validateKey, rateLimiter, animeroute)
 app.use("/movie", validateKey, rateLimiter, movieroute)
 app.use("/tv", validateKey, rateLimiter, tvroute)
-app.get("/auth/google/callback", oauthCallBack)
-app.get("/auth/google", outhLogin)
-app.post("/user/activated", activatedUser)
-
+app.use("/auth", authroute)
 // app.post("/create_user", CreateAcc)
 // app.post("/login_user", LoginAcc)
 
