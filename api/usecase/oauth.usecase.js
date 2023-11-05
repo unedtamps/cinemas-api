@@ -28,6 +28,7 @@ const authUrl = oauth2Client.generateAuthUrl({
 
 const updateOrCreateUser = async (data) => {
   try {
+    let response = {}
     const exprireAt = Date.now() + 3 * 24 * 60 * 60 * 1000
     // find not using oauth
     const findUserNotOauth = await userDB.findOne({
@@ -36,13 +37,22 @@ const updateOrCreateUser = async (data) => {
         auth_type: "password",
       },
     })
-    if(findUserNotOauth){
-      return null
+    if (findUserNotOauth) {
+      response = {
+        status: 409,
+        message: "already register",
+      }
+      return response
     }
     const findUser = await userDB.findOne({ where: { id: data.id } })
     if (findUser && findUser.dataValues.auth_type === "oauth") {
       await findUser.update({ expire_at: exprireAt })
-      return findUser
+      response = {
+        status: 201,
+        message: "update expire date",
+        expire_at: new Date(exprireAt).toString(),
+      }
+      return response
     }
     const key = GenerateKey()
     const password = await HashPassword(GeneratePassword())
@@ -56,7 +66,11 @@ const updateOrCreateUser = async (data) => {
       expire_at: exprireAt,
     })
     sendEmailActivation(user.dataValues)
-    return user
+    response = {
+      status: 201,
+      message: "check email to see token and activated token",
+    }
+    return response
   } catch (error) {
     console.log(error)
   }

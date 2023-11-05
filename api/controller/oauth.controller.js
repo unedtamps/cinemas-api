@@ -1,4 +1,5 @@
 const { google } = require("googleapis")
+const url = require("url")
 
 const {
   authUrl,
@@ -24,20 +25,16 @@ const oauthCallBack = async (req, res) => {
       })
     }
     const user = await updateOrCreateUser(data)
-    if (!user) {
-      return res.status(409).json({
-        success: false,
-        message: "already exisits",
-      })
-    }
-
-    return res.status(201).json({
-      success: true,
-      data: {
-        apiKey: user.dataValues.key,
-        expire_at: new Date(user.dataValues.expire_at).toString(),
-      },
-    })
+    return res.redirect(
+      url.format({
+        pathname: "/views/response",
+        query: {
+          status: user.status,
+          message:user.message,
+          expire_at: user.expire_at || null,
+        },
+      }),
+    )
   } catch (error) {
     return res.status(500).json(error)
   }

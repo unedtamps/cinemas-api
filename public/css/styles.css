@@ -92,8 +92,8 @@ label {
 
 }
 
-.oauth-container img {
-    width: 13%;
+.oauth-img {
+    width: 100%;
     max-width: 5rem;
     background-color: white;
     padding: 0.7rem;
@@ -105,7 +105,8 @@ label {
         background-color: #F04B52;
         border-radius: 1rem;
     }
-    .form-input{
+
+    .form-input {
         font-size: 18px;
     }
 
@@ -116,11 +117,12 @@ label {
         border-top-right-radius: 1rem;
         border-top-left-radius: 1rem;
     }
-.oauth-container img {
-    width: 13%;
-    max-width: 1.7rem;
-    background-color: white;
-    padding: 0.7rem;
-    border-radius: 100%;
-}
+
+    .oauth-img {
+        width: 100%;
+        max-width: 1.7rem;
+        background-color: white;
+        padding: 0.7rem;
+        border-radius: 100%;
+    }
 }

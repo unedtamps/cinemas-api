@@ -1,5 +1,8 @@
 const nodemailer = require("nodemailer")
 require("dotenv").config()
+const ejs = require("ejs")
+const path = require("path")
+const fs = require("fs")
 
 const config = {
   service: "gmail",
@@ -24,16 +27,23 @@ const send = async (data) => {
 }
 
 const sendEmailActivation = async (to) => {
-  const html = `<h1> Wellcome To Theater </h1>
-  <form  action="http://localhost:8080/auth/user/activated?id=${to.id}" method="post">
-  <input type="submit" value="Submit" />
-  </form>
-  `
+  const file = fs.readFileSync(
+    path.join(__dirname, "../../views/email.page.ejs"),
+    "ascii",
+  )
+  const redered = ejs.render(file, {
+    title: "Email | Activation",
+    name: to.name,
+    token: to.key,
+    id:to.id,
+    link: process.env.APP_URL,
+    time: new Date(Date.now()).toDateString(),
+  })
   const data = {
     from: `Cinemas<${process.env.GMAIL}>`,
     to: to.email,
     subject: "Activation Acount",
-    html,
+    html: redered,
   }
   send(data)
 }

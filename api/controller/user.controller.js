@@ -7,6 +7,7 @@ const {
   Compare,
 } = require("../usecase/utility.usecase")
 const userModel = model.user
+const url = require("url")
 const validateInput = (email, password) => {
   if (!password || !email) {
     return false
@@ -42,7 +43,9 @@ const activatedUser = async (req, res) => {
 }
 
 const registerUser = async (req, res) => {
+  console.log(req)
   const { email, password, name } = req.body
+  console.log(email, password, name)
   try {
     if (!validateInput(email, password)) {
       return res.status(400).json({
@@ -61,7 +64,7 @@ const registerUser = async (req, res) => {
         message: "already exsist",
       })
     }
-    const user =await userModel.create({
+    const user = await userModel.create({
       id: GenerateId(),
       email,
       password: await HashPassword(password),
@@ -71,16 +74,22 @@ const registerUser = async (req, res) => {
       expire_at: Date.now() + 3 * 24 * 60 * 60 * 1000,
     })
     sendEmailActivation(user.dataValues)
-    return res.json({
-      success: true,
-      message: "berhasil membuat user",
-    })
+    return res.redirect(
+      url.format({
+        pathname: "/views/response",
+        query: {
+          success: true,
+          status:201,
+          message: "success create user chack email for token and activation",
+        },
+      }),
+    )
   } catch (error) {
     console.log(error.message)
   }
 }
 const loginUser = async (req, res) => {
-  const { email, password } = req.body
+  const { email, password } = req.query
   try {
     if (!validateInput(email, password)) {
       return res.status(400).json({
@@ -111,13 +120,16 @@ const loginUser = async (req, res) => {
     await userFind.update({
       expire_at: expireAt,
     })
-    return res.json({
-      success: true,
-      message: "berhasil membuat user",
-      data: {
-        api_key: userFind.dataValues.key,
-      },
-    })
+    return res.redirect(
+      url.format({
+        pathname: "/views/response",
+        query: {
+          success: true,
+          status:201,
+          message: "success update expire date",
+        },
+      }),
+    )
   } catch (error) {
     console.log(error.message)
   }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="../css/styles.css" />
     <!-- <script src="js/form.js"></script> -->
     <title><%= title %></title>
   </head>
@@ -12,10 +12,10 @@
     <section id="login">
       <div class="container">
         <div class="img-container">
-          <img src="img/cinema.png" alt="cinema logo" />
+          <img src="../img/cinema.png" alt="cinema logo" />
         </div>
         <div class="form-container">
-          <form action="" method="post">
+          <form action="<%= link %>/auth/login" method="post">
             <h1 class="form-title">Login</h1>
             <div class="form-body">
               <label for="email">Email</label>
@@ -30,7 +30,7 @@
               <p id="error-messege-email" style="display: none"></p>
               <label for="password">Password</label>
               <input
-                type="text"
+                type="password"
                 name="password"
                 id="password"
                 class="form-input"
@@ -42,9 +42,12 @@
             </div>
             <div class="oauth-container">
               <i style="text-align: center; display: block"
-                ><span><a href="">Register</a></span> or Login with</i
+                ><span><a href="<%= link %>/views/register">Register</a></span> or Login
+                with</i
               >
-              <img src="img/google_300221.png" alt="gogle image" />
+              <a href="<%= link %>/auth/google"
+                ><img class="oauth-img" src="../img/google_300221.png" alt="gogle image"
+              /></a>
             </div>
           </form>
         </div>
