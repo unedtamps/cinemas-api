@@ -5,9 +5,11 @@ const mwatch = model.movieWatch
 const subs = model.subtitles
 const tvEps = model.tvWatch
 require("dotenv").config()
-const apiUrl = process.env.API_URL
 const { Op } = require("sequelize")
 const { toTitleCase } = require("./utility.usecase")
+const { MOVIES } = require('@consumet/extensions')
+const flixhq = new MOVIES.FlixHQ()
+
 
 // movie
 const FindMovieByName = async (name) => {
@@ -156,23 +158,19 @@ const FindEpisodesByTVId = async (tvId) => {
 
 // Apis
 const SearchMovieTVAPI = async (name) => {
-  let url = `${apiUrl}/movies/flixhq/${name}`
   try {
-    const dataFetch = await fetch(url)
-    const datas = await dataFetch.json()
-    const dataRes = datas.results
-    if (!dataRes) {
-      console.log(`${name} not found`)
+    const { results } = await flixhq.search(name)
+    if (results.length === 0) {
+      console.log(`${name} Not Found`)
       return
     }
-
     await Promise.all(
-      dataRes.map(async (data) => {
-        url = `${apiUrl}/movies/flixhq/info?id=${data.id}`
-        const getInfo = await fetch(url)
-        const getJson = await getInfo.json()
-        // insert to movie table
-
+      results.map(async (data) => {
+        const getJson = await flixhq.fetchMediaInfo(data.id)
+        if (!getJson) {
+          console.log(`${name} Detail Info Is Not Found`)
+          return
+        }
         const genres = getJson.genres ? getJson.genres.join(",") : null
         const casts = getJson.casts ? getJson.casts.join(",") : null
         const duration = getJson.duration
@@ -213,24 +211,21 @@ const GetMovieTVEpsApi = async (Id, type) => {
   try {
     const tempId = Id.split("-")
     const watchId = tempId.pop()
-    // const server = await flixHq.fetchEpisodeServers(watchId, Id)
-    // if (server.length === 0) {
-    //   return
-    // }
-    // const serverName = server[0].name
-
-    // const watchJson = await flixHq.fetchEpisodeSources(watchId, Id, serverName)
-    const url = `${apiUrl}/movies/flixhq/watch?`
-    const watchData = await fetch(
-      url +
-        new URLSearchParams({
-          episodeId: watchId,
-          mediaId: Id,
-        }),
-    )
-    const watchJson = await watchData.json()
-    if (watchJson.sources === undefined) {
-      console.log(`Episode ${Id} not found`)
+    const server = await flixhq.fetchEpisodeServers(watchId, Id)
+    if (server.length === 0) {
+      console.log(`Server Not Available`)
+      return
+    }
+    let watchJson
+    for (const s of server) {
+      try {
+        const res = await flixhq.fetchEpisodeSources(watchId,Id,s.name)
+        watchJson = res.sources
+        if (watchJson) break
+      } catch (error) {console.log(error.message, s.name)}
+    }
+    if (watchJson == null) {
+      console.log(Id, "is not found")
       return
     }
     // insert epsiosde of movie to db and return
@@ -247,11 +242,7 @@ const InsertMovieTVEpisode = async (dataEps, id, movieTVId, type) => {
     let title = ""
 
     if (type === "tv") {
-      const url = `${apiUrl}/movies/flixhq/info?id=${movieTVId}`
-      const getInfo = await fetch(url)
-      const getJson = await getInfo.json()
-      // const getJson = await flixHq.fetchMediaInfo(movieTVId)
-      const episodes = getJson.episodes
+      const { episodes } = await flixhq.fetchMediaInfo(movieTVId)
       title = episodes.title
     }
     dataEps.sources.forEach(async (eps) => {

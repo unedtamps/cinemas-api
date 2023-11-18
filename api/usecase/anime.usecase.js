@@ -1,10 +1,11 @@
 const { Op } = require("sequelize")
 const model = require("../../models")
 const { toTitleCase } = require("./utility.usecase")
+const { ANIME } = require("@consumet/extensions")
 const anime = model.anime
 const episode = model.animeEpisode
 require("dotenv").config()
-const apiUrl = process.env.API_URL
+const gogoanime = new ANIME.Gogoanime()
 
 const GetbyId = async (id) => {
   try {
@@ -94,15 +95,10 @@ const GetEpisodeId = async (id) => {
 
 const SearchFromApi = async (title) => {
   try {
-    let url = `${apiUrl}/anime/gogoanime/${title}`
-    let data = await fetch(url)
-    const dataWait = await data.json()
-    const jsonDatas = dataWait.results
+    const { results } = await gogoanime.search(title)
     await Promise.all(
-      jsonDatas.map(async (js) => {
-        url = `${apiUrl}/anime/gogoanime/info/${js.id}`
-        data = await fetch(url)
-        const getJson = await data.json()
+      results.map(async (js) => {
+        const getJson = await gogoanime.fetchAnimeInfo(js.id)
         const result = {
           id: js.id,
           title: js.title,
@@ -124,10 +120,7 @@ const SearchFromApi = async (title) => {
 }
 const SearchEpisodesApi = async (animeId) => {
   try {
-    const url = `${apiUrl}/anime/gogoanime/info/${animeId}`
-    const data = await fetch(url)
-    const infoJson = await data.json()
-    const episodes = infoJson.episodes
+    const { episodes } = await gogoanime.fetchAnimeInfo(animeId)
     await Promise.all(
       episodes.map(async (ep) => {
         SearchEpisodeApi(ep.id, animeId)
@@ -140,15 +133,20 @@ const SearchEpisodesApi = async (animeId) => {
 
 const SearchEpisodeApi = async (id, animeId) => {
   try {
-    const url = `${apiUrl}/anime/gogoanime/watch/${id}`
-    const datas = await fetch(url)
-    const dataJson = await datas.json()
-    const dataRes = dataJson.sources
-    if (dataRes === undefined) {
+    let sources
+    const server = await gogoanime.fetchEpisodeServers(id)
+    for (const s of server) {
+      try {
+        const res = await gogoanime.fetchEpisodeSources(id, s.name)
+        sources = res.sources
+        if (sources) break
+      } catch (error) {}
+    }
+    if (sources == null) {
       console.log("episode not found")
       return
     }
-    dataRes.forEach((data) => {
+    sources.forEach((data) => {
       if (
         data.quality === "1080p" ||
         data.quality === "default" ||

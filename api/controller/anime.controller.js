@@ -104,6 +104,7 @@ const GetAnimeEpisodeById = async (req, res) => {
     }
     const datas = await GetEpisodeId(id)
     if (datas.length === 0) {
+      SearchEpisodeApi(id,animeId)
       return res.status(404).json({
         success: false,
         messege: "Episode NotFound, Try Again Letter",
