@@ -8,7 +8,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      this.hasMany(models.animeEpisode)
+      this.hasMany(models.animeEpisode, {
+        foreignKey: "anime_id",
+        onDelete: "CASCADE",
+      })
     }
   }
   anime.init(
@@ -18,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       title: DataTypes.STRING,
+      other_name: DataTypes.STRING(512),
       genres: DataTypes.STRING(512),
       release_year: DataTypes.STRING(4),
       image: DataTypes.STRING,
@@ -29,8 +33,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'anime',
-      tableName: 'animes',
+      modelName: "anime",
+      tableName: "animes",
     },
   )
   return anime

@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsTo(models.anime, {
         foreignKey: "anime_id",
+        onDelete: "CASCADE",
       })
     }
   }
@@ -27,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "animeEpisode",
       tableName: "anime_episodes",
-      timestamps: false
+      timestamps: false,
     },
   )
   return animeEpisode

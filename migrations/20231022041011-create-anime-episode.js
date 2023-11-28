@@ -1,6 +1,5 @@
 "use strict"
 
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -14,12 +13,12 @@ module.exports = {
       quality: {
         allowNull: false,
         type: Sequelize.ENUM("1080p", "default", "backup"),
-        primaryKey: true
+        primaryKey: true,
       },
       anime_id: {
         type: Sequelize.STRING,
         allowNull: false,
-        // references: { model: "animes", key: "id" },
+        references: { model: "animes", key: "id" },
       },
       episode_url: Sequelize.STRING(514),
     })
