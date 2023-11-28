@@ -3,6 +3,8 @@ require("dotenv").config()
 const ejs = require("ejs")
 const path = require("path")
 const fs = require("fs")
+const createJwt = require("./token.usecase")
+
 
 const config = {
   service: "gmail",
@@ -31,13 +33,15 @@ const sendEmailActivation = async (to) => {
     path.join(__dirname, "../../views/email.page.ejs"),
     "ascii",
   )
+  const token = createJwt(to.id)
+
   const redered = ejs.render(file, {
     title: "Email | Activation",
-    name: to.name,
-    token: to.key,
-    id:to.id,
-    link: process.env.APP_URL,
     time: new Date(Date.now()).toDateString(),
+    link: process.env.APP_URL,
+    token,
+    name: to.name,
+    id:to.id,
   })
   const data = {
     from: `Cinemas<${process.env.GMAIL}>`,
