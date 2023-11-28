@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Outfit&display=swap");
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #f9dec9;
+        font-family: "Outfit", sans-serif;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      span {
+        background: linear-gradient(
+          to right,
+          rgb(182, 244, 146),
+          rgb(51, 139, 147)
+        );
+        font-style: italic;
+        color: black;
+        padding: 1rem;
+        margin-right: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="background-color: darkred; padding: 1rem 1rem 1rem 0">
+      <p style="color:white;"><span>Error</span> <%= message %></p>
+    </div>
+  </body>
+</html>

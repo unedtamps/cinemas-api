@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Outfit&display=swap");
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #f9dec9;
+        font-family: "Outfit", sans-serif;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      .token {
+        text-align: center;
+        font-size: 3rem;
+        font-weight: bolder;
+      }
+      .token-value {
+        padding: 1rem 1rem 1rem 0;
+        background-color: aliceblue;
+        margin: 1rem auto 1rem auto;
+        border-radius: 0.4rem;
+        font-size: 1.2rem;
+      }
+      h4 {
+        font-size: 1.8rem;
+        text-align: center;
+      }
+      .container {
+        margin-top: 1rem;
+      }
+      span {
+        background: linear-gradient(
+          to right,
+          rgb(182, 244, 146),
+          rgb(51, 139, 147)
+        );
+        font-style: italic;
+        padding: 1rem;
+        margin-right: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <i class="token" style="max-width: 50%"
+      >Thank you <%= name %> for using our api</i
+    >
+    <div class="container">
+      <div class="token-value">
+        <p><span>Token</span><%= token %></p>
+      </div>
+      <div class="token-value">
+        <p><span>Expire</span> <%= expire %></p>
+      </div>
+      <div class="token-value">
+        <p><span style="background-color: yellow;">Warning</span>This token only show once</p>
+      </div>
+    </div>
+  </body>
+</html>

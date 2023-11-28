@@ -32,9 +32,6 @@
         font-weight: 400;
       }
       form {
-        display: flex;
-        justify-content: center;
-        align-items: center;
         margin: 2rem auto 0 auto;
       }
       form button {
@@ -64,19 +61,6 @@
         width: 50%;
         height: 1px;
       }
-      .token {
-        text-align: center;
-        font-size: 1.3rem;
-        font-weight: bold;
-      }
-      .token-value {
-        margin-top: 1rem;
-        border: 3px solid #9a4444;
-        padding: 1rem;
-        margin: 1rem auto 1rem auto;
-        border-radius: 1rem;
-        font-size: 1.2rem;
-      }
     </style>
   </head>
   <body>
@@ -85,12 +69,11 @@
     <div class="line"></div>
     <div class="content">
       <h2>Thank you <%= name %> for your registration to Cinemas Api</h2>
-      <i class="token">Your Token :</i>
-      <div class="token-value">
-        <p><%= token %></p>
-      </div>
-      <h2>Before use it click this button to activated you accout</h2>
-      <form action="<%= link  %>/auth/user/activated?id=<%= id %>" method="post">
+      <h2>Click this button to get token and activated you accout</h2>
+      <form
+        action="<%= link  %>/auth/user/activated?token=<%= token %>&id=<%= id %>"
+        method="post"
+      >
         <button type="submit">Activate</button>
       </form>
     </div>
