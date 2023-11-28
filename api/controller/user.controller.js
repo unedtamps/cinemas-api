@@ -36,9 +36,9 @@ const activatedUser = async (req, res) => {
         },
       },
     )
-    res.redirect("/")
+    res.redirect(`/views/success?token=${req.query.token}`)
   } catch (error) {
-    console.log(error)
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -59,10 +59,7 @@ const registerUser = async (req, res) => {
       },
     })
     if (userFind) {
-      return res.status(400).json({
-        success: false,
-        message: "already exsist",
-      })
+      return res.redirect("/error?message=Already Exist")
     }
     const user = await userModel.create({
       id: GenerateId(),
@@ -78,9 +75,9 @@ const registerUser = async (req, res) => {
       url.format({
         pathname: "/views/response",
         query: {
-          success: true,
-          status:201,
           message: "success create user chack email for token and activation",
+          name,
+          expire_at: new Date(user.dataValues.expire_at).toString(),
         },
       }),
     )
@@ -89,13 +86,11 @@ const registerUser = async (req, res) => {
   }
 }
 const loginUser = async (req, res) => {
-  const { email, password } = req.query
+  const { email, password } = req.body
+  console.log(email,password)
   try {
     if (!validateInput(email, password)) {
-      return res.status(400).json({
-        success: false,
-        message: "bad request",
-      })
+      return res.redirect(`/error?message=Bad Request`)
     }
     const userFind = await userModel.findOne({
       where: {
@@ -103,17 +98,11 @@ const loginUser = async (req, res) => {
       },
     })
     if (!userFind) {
-      return res.status(404).json({
-        success: false,
-        message: "email or password wrong",
-      })
+      return res.redirect(`/error?message=Email Or Password Wrong`)
     }
     const comparePass = await Compare(password, userFind.dataValues.password)
     if (!comparePass) {
-      return res.status(403).json({
-        success: false,
-        message: "email or password wrong",
-      })
+      return res.redirect(`/error?message=Email Or Password Wrong`)
     }
 
     const expireAt = Date.now() + 3 * 24 * 60 * 60 * 1000
@@ -124,9 +113,9 @@ const loginUser = async (req, res) => {
       url.format({
         pathname: "/views/response",
         query: {
-          success: true,
-          status:201,
           message: "success update expire date",
+          expire_at: new Date(expireAt).toString(),
+          name: userFind.dataValues.name,
         },
       }),
     )

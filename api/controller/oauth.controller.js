@@ -18,10 +18,11 @@ const oauthCallBack = async (req, res) => {
       version: "v2",
     })
     const { data } = await dataInfo.userinfo.get()
-    console.log(data.name)
     if (!data.email) {
       return res.status(404).json({
         message: "data not found",
+        name: null,
+        expire: null,
       })
     }
     const user = await updateOrCreateUser(data)
@@ -29,9 +30,9 @@ const oauthCallBack = async (req, res) => {
       url.format({
         pathname: "/views/response",
         query: {
-          status: user.status,
           message:user.message,
-          expire_at: user.expire_at || null,
+          name: data.name,
+          expire_at:user.expire_at
         },
       }),
     )
