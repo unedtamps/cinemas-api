@@ -12,7 +12,7 @@ const {
 const oauth2Client = new google.Auth.OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  "http://localhost:8080/auth/google/callback",
+  `${process.env.APP_URL}/auth/google/callback`,
 )
 
 const scopes = [
@@ -40,7 +40,7 @@ const updateOrCreateUser = async (data) => {
     if (findUserNotOauth) {
       response = {
         status: 409,
-        message: "already register",
+        message: "Already Register With Different Method ",
       }
       return response
     }
@@ -49,7 +49,7 @@ const updateOrCreateUser = async (data) => {
       await findUser.update({ expire_at: exprireAt })
       response = {
         status: 201,
-        message: "update expire date",
+        message: "Update Expire Date",
         expire_at: new Date(exprireAt).toString(),
       }
       return response
@@ -69,6 +69,7 @@ const updateOrCreateUser = async (data) => {
     response = {
       status: 201,
       message: "check email to see token and activated token",
+      expire_at: new Date(user.dataValues.expire_at).toString()
     }
     return response
   } catch (error) {
@@ -76,4 +77,18 @@ const updateOrCreateUser = async (data) => {
   }
 }
 
-module.exports = { authUrl, oauth2Client, updateOrCreateUser }
+const findUserToken = async (id) => {
+  const data = await userDB.findOne({
+    where: {
+      id,
+    },
+  })
+  const res = {
+    token: data.dataValues.key,
+    expire: new Date(data.dataValues.expire_at).toString(),
+    name: data.dataValues.name
+  }
+  return res
+}
+
+module.exports = { authUrl, oauth2Client, updateOrCreateUser, findUserToken }

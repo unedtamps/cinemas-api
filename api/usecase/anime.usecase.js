@@ -1,13 +1,12 @@
 const { Op } = require("sequelize")
 const model = require("../../models")
 const { toTitleCase } = require("./utility.usecase")
-const { ANIME } = require("@consumet/extensions")
 const anime = model.anime
 const episode = model.animeEpisode
 require("dotenv").config()
-const gogoanime = new ANIME.Gogoanime()
-
-const GetbyId = async (id) => {
+const axios = require("axios")
+const { BaseError } = require("../handler/error.handler")
+const FindAnimeById = async (id) => {
   try {
     let data = await anime.findOne({
       attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -20,10 +19,10 @@ const GetbyId = async (id) => {
     }
     return data
   } catch (error) {
-    console.log(error.message)
+    throw new BaseError(error.message)
   }
 }
-const GetByName = async (name) => {
+const FindAnimeByTitle = async (name, limit, offset) => {
   try {
     const datas = await anime.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -39,8 +38,15 @@ const GetByName = async (name) => {
               [Op.like]: `%${name}%`,
             },
           },
+          {
+            other_name: {
+              [Op.like]: `%${name}%`,
+            },
+          },
         ],
       },
+      limit,
+      offset,
     })
     const results = []
     if (datas) {
@@ -54,7 +60,7 @@ const GetByName = async (name) => {
   }
 }
 
-const GetEpisodesByAnimeId = async (animeId) => {
+const FindEpisodesByAnimeId = async (animeId) => {
   try {
     const datas = await episode.findAll({
       attributes: ["id", "quality", "anime_id", "episode_url"],
@@ -73,7 +79,7 @@ const GetEpisodesByAnimeId = async (animeId) => {
     console.log(error.message)
   }
 }
-const GetEpisodeId = async (id) => {
+const FindAnimeEpisodeById = async (id) => {
   try {
     const datas = await episode.findAll({
       attributes: ["id", "quality", "anime_id", "episode_url"],
@@ -95,10 +101,18 @@ const GetEpisodeId = async (id) => {
 
 const SearchFromApi = async (title) => {
   try {
-    const { results } = await gogoanime.search(title)
+    const { data } = await axios({
+      method: "get",
+      url: `${process.env.API_URL}/anime/gogoanime/${title}`,
+    })
+    const results = data.results
     await Promise.all(
       results.map(async (js) => {
-        const getJson = await gogoanime.fetchAnimeInfo(js.id)
+        const data = await axios({
+          method: "get",
+          url: `${process.env.API_URL}/anime/gogoanime/info/${js.id}`,
+        })
+        const getJson = data.data
         const result = {
           id: js.id,
           title: js.title,
@@ -110,6 +124,7 @@ const SearchFromApi = async (title) => {
           sub_or_dub: js.subOrDub,
           status: getJson.status,
           type: getJson.type,
+          other_name: getJson.otherName,
         }
         anime.upsert(result)
       }),
@@ -120,7 +135,11 @@ const SearchFromApi = async (title) => {
 }
 const SearchEpisodesApi = async (animeId) => {
   try {
-    const { episodes } = await gogoanime.fetchAnimeInfo(animeId)
+    const { data } = await axios({
+      method: "get",
+      url: `${process.env.API_URL}/anime/gogoanime/info/${animeId}`,
+    })
+    const episodes = data.episodes
     await Promise.all(
       episodes.map(async (ep) => {
         SearchEpisodeApi(ep.id, animeId)
@@ -133,18 +152,14 @@ const SearchEpisodesApi = async (animeId) => {
 
 const SearchEpisodeApi = async (id, animeId) => {
   try {
-    let sources
-    const server = await gogoanime.fetchEpisodeServers(id)
-    for (const s of server) {
-      try {
-        const res = await gogoanime.fetchEpisodeSources(id, s.name)
-        sources = res.sources
-        if (sources) break
-      } catch (error) {}
-    }
-    if (sources == null) {
-      console.log("episode not found")
-      return
+    console.log(id)
+    const { data } = await axios({
+      method: "get",
+      url: `${process.env.API_URL}/anime/gogoanime/watch/${id}`,
+    })
+    const sources = data.sources
+    if (sources === null) {
+      throw new BaseError("Episode Not Found")
     }
     sources.forEach((data) => {
       if (
@@ -166,11 +181,11 @@ const SearchEpisodeApi = async (id, animeId) => {
 }
 
 module.exports = {
-  GetbyId,
+  FindAnimeById,
   SearchFromApi,
-  GetByName,
-  GetEpisodesByAnimeId,
-  GetEpisodeId,
+  FindAnimeByTitle,
+  FindEpisodesByAnimeId,
+  FindAnimeEpisodeById,
   SearchEpisodeApi,
   SearchEpisodesApi,
 }
