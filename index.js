@@ -24,19 +24,27 @@ cron.schedule("*/1 * * * *", () => {
   console.log("run every minutes")
 })
 
-app.get("/", (req, res) => {
-  res.json({
-    messege: "api working",
-  })
-})
-
 app.use("/anime", validateKey, rateLimiter, animeroute)
 app.use("/movie", validateKey, rateLimiter, movieroute)
 app.use("/tv", validateKey, rateLimiter, tvroute)
 app.use("/auth", authroute)
 app.use("/views", viewRoute)
-// app.post("/create_user", CreateAcc)
-// app.post("/login_user", LoginAcc)
+
+app.use("/error", (req, res) => {
+  return res.render("error.page.ejs", {message:req.query.message})
+})
+
+app.use((err, req, res, next) => {
+  const { message, statusCode } = err
+  return res.status(statusCode).json({
+    success: false,
+    message,
+  })
+})
+
+app.use((req, res) => {
+  return res.render("home.page.ejs", { title: "Home | Cinema" })
+})
 
 app.listen(port, () => {
   console.log("listening in", port)
