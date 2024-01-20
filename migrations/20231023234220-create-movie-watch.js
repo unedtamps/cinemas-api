@@ -14,6 +14,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING(512),
       },
+      title: {
+        allowNull: true,
+        type: Sequelize.STRING(512),
+      },
       movie_id: {
         allowNull: false,
         references: {

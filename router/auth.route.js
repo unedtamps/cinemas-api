@@ -17,5 +17,4 @@ authroute.post("/user/activated", activatedUser)
 authroute.post("/register", registerUser)
 authroute.post("/login", loginUser)
 
-
 module.exports = authroute

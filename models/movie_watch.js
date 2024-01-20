@@ -18,23 +18,26 @@ module.exports = (sequelize, DataTypes) => {
     {
       id: {
         primaryKey: true,
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
-      watch_url:{
-        type:DataTypes.STRING(512),
+      title: {
+        type: DataTypes.STRING(512),
       },
-      movie_id:{
-        type: DataTypes.STRING
+      watch_url: {
+        type: DataTypes.STRING(512),
       },
-      quality:{
-        type: DataTypes.STRING
+      movie_id: {
+        type: DataTypes.STRING,
+      },
+      quality: {
+        type: DataTypes.STRING,
       },
     },
     {
       sequelize,
       modelName: "movieWatch",
       tableName: "movie_watches",
-      timestamps: false
+      timestamps: false,
     },
   )
   return movieWatch

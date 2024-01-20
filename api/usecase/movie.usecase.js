@@ -1,5 +1,6 @@
 const { Op } = require("sequelize")
 const model = require("../../models")
+const { toTitleCase } = require("./utility.usecase")
 const movie = model.movie
 const mwatch = model.movieWatch
 
@@ -8,9 +9,18 @@ const GetMovieByName = async (name) => {
     const datas = await movie.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
       where: {
-        title: {
-          [Op.like]: `%${name}%`,
-        },
+        [Op.or]: [
+          {
+            title: {
+              [Op.like]: `%${toTitleCase(name)}%`,
+            },
+          },
+          {
+            id: {
+              [Op.like]: `%${name}%`,
+            },
+          },
+        ],
       },
     })
     const results = []
@@ -32,6 +42,7 @@ const GetMovieById = async (id) => {
         id,
       },
     })
+    console.log(data)
     if (data) {
       data = data.dataValues
     }
@@ -64,12 +75,12 @@ const GetEpisodeById = async (id) => {
   try {
     const res = []
     const datas = await mwatch.findAll({
-      attributes:{exclude: ["movieId"]},
+      attributes: { exclude: ["movieId"] },
       where: {
         id,
       },
     })
-    datas.forEach(data => {
+    datas.forEach((data) => {
       res.push(data.dataValues)
     })
     return res
@@ -82,5 +93,5 @@ module.exports = {
   GetMovieByName,
   GetMovieById,
   GetEpisodeMovieById,
-  GetEpisodeById
+  GetEpisodeById,
 }

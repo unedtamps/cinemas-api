@@ -7,9 +7,11 @@ const tvEps = model.tvWatch
 require("dotenv").config()
 const { Op } = require("sequelize")
 const { toTitleCase } = require("./utility.usecase")
-const { MOVIES } = require('@consumet/extensions')
-const flixhq = new MOVIES.FlixHQ()
-
+const {
+  SearchMovieTV,
+  MediaInfo,
+  FetchEpisodeSource,
+} = require("../utils/movie_fetch")
 
 // movie
 const FindMovieByName = async (name) => {
@@ -98,75 +100,17 @@ const FindEpisodeMovieById = async (id) => {
   }
 }
 
-// Tv
-const FindTvByName = async (name) => {
-  try {
-    const datas = await tv.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where: {
-        title: {
-          [Op.like]: `%${name}%`,
-        },
-      },
-    })
-    const results = []
-    if (datas) {
-      datas.forEach((data) => {
-        results.push(data.dataValues)
-      })
-    }
-    return results
-  } catch (error) {
-    console.log(error.message)
-  }
-}
-const FindTvById = async (id) => {
-  try {
-    let data = await tv.findOne({
-      where: {
-        id,
-      },
-    })
-    if (data) {
-      data = data.dataValues
-    }
-    return data
-  } catch (error) {
-    console.log(error.message)
-  }
-}
-
-const FindEpisodesByTVId = async (tvId) => {
-  try {
-    const datas = await tvEps.findAll({
-      attributes: { exclude: "tvId" },
-      where: {
-        tv_id: tvId,
-      },
-    })
-    const results = []
-    if (datas) {
-      datas.forEach((data) => {
-        results.push(data.dataValues)
-      })
-    }
-    return results
-  } catch (error) {
-    console.log(error.message)
-  }
-}
-
 // Apis
 const SearchMovieTVAPI = async (name) => {
   try {
-    const { results } = await flixhq.search(name)
+    const { results } = await SearchMovieTV(name)
     if (results.length === 0) {
       console.log(`${name} Not Found`)
       return
     }
     await Promise.all(
       results.map(async (data) => {
-        const getJson = await flixhq.fetchMediaInfo(data.id)
+        const getJson = await MediaInfo(data.id)
         if (!getJson) {
           console.log(`${name} Detail Info Is Not Found`)
           return
@@ -191,14 +135,16 @@ const SearchMovieTVAPI = async (name) => {
         }
         if (data.type === "Movie" && duration !== 0) {
           result.cover = getJson.cover
-          movie.upsert(result)
+          await movie.upsert(result)
+          GetMovieTVEpsApi(getJson, "movie")
         } else if (data.type === "TV Series" && duration !== 0) {
           const len = getJson.episodes.length || 0
           result.total_episode = len
           result.total_season = getJson.episodes[len - 1]
             ? getJson.episodes[len - 1].season
             : 0
-          tv.upsert(result)
+          await tv.upsert(result)
+          GetMovieTVEpsApi(getJson, "tv")
         }
       }),
     )
@@ -207,63 +153,54 @@ const SearchMovieTVAPI = async (name) => {
   }
 }
 
-const GetMovieTVEpsApi = async (Id, type) => {
+const GetMovieTVEpsApi = async (DataInfo, type) => {
   try {
-    const tempId = Id.split("-")
-    const watchId = tempId.pop()
-    const server = await flixhq.fetchEpisodeServers(watchId, Id)
-    if (server.length === 0) {
-      console.log(`Server Not Available`)
-      return
-    }
-    let watchJson
-    for (const s of server) {
-      try {
-        const res = await flixhq.fetchEpisodeSources(watchId,Id,s.name)
-        watchJson = res.sources
-        if (watchJson) break
-      } catch (error) {console.log(error.message, s.name)}
-    }
-    if (watchJson == null) {
-      console.log(Id, "is not found")
-      return
+    let videoSource
+    let subtitleSource
+    try {
+      const { id, episodes } = DataInfo
+
+      episodes.forEach(async (eps) => {
+        const res = await FetchEpisodeSource(eps.id, id)
+
+        videoSource = res ? res.sources : []
+        subtitleSource = res ? res.subtitles : []
+
+        // insert into movie/tv id
+        InsertMovieTVEpisode(videoSource, eps.id, id, type, eps.title)
+        // insert to subtitle db
+        InsertMovieTVSubtitle(subtitleSource, eps.id)
+      })
+    } catch (error) {
+      console.log(error.message)
     }
     // insert epsiosde of movie to db and return
-    InsertMovieTVEpisode(watchJson, watchId, Id, type)
-    // insert to subtitle db
-    InsertMovieTVSubtitle(watchJson, watchId)
   } catch (error) {
     console.log(error.message)
   }
 }
 
-const InsertMovieTVEpisode = async (dataEps, id, movieTVId, type) => {
+const InsertMovieTVEpisode = async (dataEps, id, movieTVId, type, title) => {
   try {
-    let title = ""
-
-    if (type === "tv") {
-      const { episodes } = await flixhq.fetchMediaInfo(movieTVId)
-      title = episodes.title
-    }
-    dataEps.sources.forEach(async (eps) => {
+    dataEps.forEach(async (eps) => {
       const epsDAta = {
         id,
         watch_url: eps.url,
         quality: eps.quality,
+        title,
       }
       if (eps.quality === "1080" || eps.quality === "auto") {
         if (type === "movie") {
           epsDAta.movie_id = movieTVId
           mwatch.upsert(epsDAta)
         } else {
-          epsDAta.title = title
           epsDAta.tv_id = movieTVId
           tvEps.upsert(epsDAta)
         }
       }
     })
   } catch (error) {
-    console.log(error.message)
+    console.log(error)
   }
 }
 
@@ -271,7 +208,7 @@ const InsertMovieTVSubtitle = async (dataSub, id) => {
   // insert subtitle to db
   const subsDatas = []
   try {
-    dataSub.subtitles.forEach(async (sub) => {
+    dataSub.forEach(async (sub) => {
       const subData = {
         episode_id: id,
         url_sub: sub.url,
@@ -282,7 +219,7 @@ const InsertMovieTVSubtitle = async (dataSub, id) => {
     })
     return subsDatas
   } catch (error) {
-    console.log(error.message)
+    console.log(error)
   }
 }
 
@@ -312,7 +249,4 @@ module.exports = {
   FindEpisodeByMovieId,
   FindEpisodeMovieById,
   FindMovieById,
-  FindTvByName,
-  FindTvById,
-  FindEpisodesByTVId,
 }

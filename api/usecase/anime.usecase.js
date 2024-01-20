@@ -126,7 +126,8 @@ const SearchFromApi = async (title) => {
           type: getJson.type,
           other_name: getJson.otherName,
         }
-        anime.upsert(result)
+        await anime.upsert(result)
+        SearchEpisodesApi(js.id)
       }),
     )
   } catch (error) {
@@ -152,7 +153,6 @@ const SearchEpisodesApi = async (animeId) => {
 
 const SearchEpisodeApi = async (id, animeId) => {
   try {
-    console.log(id)
     const { data } = await axios({
       method: "get",
       url: `${process.env.API_URL}/anime/gogoanime/watch/${id}`,
@@ -180,6 +180,19 @@ const SearchEpisodeApi = async (id, animeId) => {
   }
 }
 
+const UpdateRecentEps = async () => {
+  const dataAnimes = await anime.findAll({
+    where: {
+      status: "Ongoing",
+    },
+  })
+  dataAnimes.forEach((d) => {
+    const anime = d.dataValues
+    SearchFromApi(anime.title)
+    SearchEpisodesApi(anime.id)
+  })
+}
+
 module.exports = {
   FindAnimeById,
   SearchFromApi,
@@ -188,4 +201,5 @@ module.exports = {
   FindAnimeEpisodeById,
   SearchEpisodeApi,
   SearchEpisodesApi,
+  UpdateRecentEps,
 }

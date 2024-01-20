@@ -3,7 +3,6 @@ const model = require("../../models")
 const tv = model.tv
 const tvWatch = model.tvWatch
 
-
 const GetTvByName = async (name) => {
   try {
     const datas = await tv.findAll({
@@ -61,9 +60,27 @@ const GetEpisodeTvById = async (id) => {
   }
 }
 
+const FindEpisodeById = async (id) => {
+  try {
+    const data = await tvWatch.findOne({
+      attributes: { exclude: "tvId" },
+      where: {
+        id,
+      },
+    })
+    let datab
+    if (data) {
+      datab = data.dataValues
+    }
+    return datab
+  } catch (error) {
+    console.log(error.message)
+  }
+}
 
 module.exports = {
-    GetTvByIdDB,
-    GetEpisodeTvById,
-    GetTvByName
+  GetTvByIdDB,
+  GetEpisodeTvById,
+  GetTvByName,
+  FindEpisodeById,
 }

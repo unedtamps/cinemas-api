@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config()
 module.exports = {
   development: {
     username: process.env.USERNAME_DB,
@@ -6,7 +6,7 @@ module.exports = {
     database: process.env.DATABASE_DB,
     host: process.env.HOST_DB,
     dialect: process.env.DIALECT_DB,
-    port:process.env.PORT_DB,
+    port: process.env.PORT_DB,
   },
   test: {
     username: "root",
@@ -21,7 +21,8 @@ module.exports = {
     database: process.env.DATABASE_DB,
     host: process.env.HOST_DB,
     dialect: process.env.DIALECT_DB,
-    port:process.env.PORT_DB,
+    port: process.env.PORT_DB,
+    logging: false,
     dialectOptions: {
       ssl: {
         rejectUnauthorized: true,

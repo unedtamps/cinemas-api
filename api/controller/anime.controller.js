@@ -36,8 +36,9 @@ const GetAnimeByTitle = async (req, res, next) => {
       SearchFromApi(title)
       throw new BaseError("Anime Not Found, Try Again Letter", 404)
     }
+    const pageInt = parseInt(page)
     const response = new SuccesResponse("Success Get Anime", {
-      page,
+      page: pageInt,
       dataPage: datas.length,
       datas,
     })
@@ -96,7 +97,6 @@ const GetAnimeEpisodeById = async (req, res, next) => {
     next(new BaseError(error.message, error.statusCode))
   }
 }
-
 
 module.exports = {
   GetAnimeById,
