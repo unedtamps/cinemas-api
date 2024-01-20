@@ -8,7 +8,6 @@ const tvroute = require("./router/tv.route")
 const authroute = require("./router/auth.route")
 const viewRoute = require("./router/view.route")
 const bodyParser = require("body-parser")
-const { SuccesResponse } = require("./api/handler/succes.handler")
 const { UpdateRecentEps } = require("./api/usecase/anime.usecase")
 const app = express()
 const port = process.env.PORT || "3000"
@@ -20,9 +19,8 @@ app.use(
   }),
 )
 
-app.get("/", validateKey, (req, res) => {
-  const response = new SuccesResponse("pingsucess")
-  response.succes200(res)
+app.get("/", (req, res) => {
+  res.redirect("/views")
 })
 
 app.set("view engine", "ejs")
