@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
 app.set("view engine", "ejs")
 app.use(bodyParser.urlencoded({ extended: true }))
 
-cron.schedule("* * * * * 0", () => {
+cron.schedule("* * * * * 0,4", () => {
   UpdateRecentEps()
 })
 
