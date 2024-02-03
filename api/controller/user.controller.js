@@ -43,9 +43,7 @@ const activatedUser = async (req, res) => {
 }
 
 const registerUser = async (req, res) => {
-  console.log(req)
   const { email, password, name } = req.body
-  console.log(email, password, name)
   try {
     if (!validateInput(email, password)) {
       return res.status(400).json({
@@ -87,7 +85,6 @@ const registerUser = async (req, res) => {
 }
 const loginUser = async (req, res) => {
   const { email, password } = req.body
-  console.log(email,password)
   try {
     if (!validateInput(email, password)) {
       return res.redirect(`/error?message=Bad Request`)
